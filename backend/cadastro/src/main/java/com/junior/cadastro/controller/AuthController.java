@@ -4,7 +4,7 @@ package com.junior.cadastro.controller;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import com.junior.cadastro.DTO.LoginRequest;
 import com.junior.cadastro.security.JwtService;
@@ -40,23 +40,27 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
         final String ip = HttpRequestUtils.clientIp(http);
+
         try {
             log.info("Login tentativa email={} ip={}", request.getEmail(), ip);
+
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
+
             String jwt = jwtService.generateToken(auth);
+
             log.info("Login OK email={} ip={}", request.getEmail(), ip);
+
             return ResponseEntity.ok(Map.of("token", jwt));
+
         } catch (BadCredentialsException e) {
-            log.warn("Login falhou (senha incorreta) email={} ip={}", request.getEmail(), ip);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email ou senha inválidos");
+            log.warn("Login falhou email={} ip={}", request.getEmail(), ip);
+            throw new BadCredentialsException("Email ou senha inválidos");
+
         } catch (AuthenticationException e) {
-            log.warn("Login falhou (auth) email={} ip={} tipo={}", request.getEmail(), ip, e.getClass().getSimpleName());
+            log.warn("Login falhou email={} ip={} tipo={}", request.getEmail(), ip, e.getClass().getSimpleName());
             throw e;
-        } catch (Exception e) {
-            log.error("Login erro 500 email={} ip={} erro={}", request.getEmail(), ip, e.toString());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "erro interno"));
         }
     }
 }
