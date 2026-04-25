@@ -3,6 +3,8 @@ package com.junior.cadastro.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.junior.cadastro.DTO.RoleDTO;
@@ -19,10 +21,16 @@ public class UserService {
 	private final UserRepository repository;
 
 	private final RoleRepository roleRepository;
+	
+	private final BCryptPasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository repository, RoleRepository roleRepository) {
+	
+
+	public UserService(UserRepository repository, RoleRepository roleRepository,
+			BCryptPasswordEncoder passwordEncoder) {
 		this.repository = repository;
 		this.roleRepository = roleRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional(readOnly = true)
@@ -38,13 +46,15 @@ public class UserService {
 		return new UserDTO(entity);
 	}
 
-	@Transactional
-	public UserDTO insert(UserInsertDTO dto) {
-		User entity = new User();
-		copyDtoToEntity(dto, entity);
-		entity = repository.save(entity);
-		return new UserDTO(entity);
-	}
+	 @Transactional
+	    public UserDTO insert(UserInsertDTO dto) {
+	    	User entity = new User();
+	    	copyDtoToEntity(dto, entity);
+	    	entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+	    	entity = repository.save(entity);
+	    	return new UserDTO(entity);
+	    }
+	    
 
 	@Transactional
 	public UserDTO update(Long id, UserDTO dto) {
