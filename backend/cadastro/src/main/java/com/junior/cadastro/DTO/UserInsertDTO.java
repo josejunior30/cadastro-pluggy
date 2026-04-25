@@ -1,0 +1,26 @@
+package com.junior.cadastro.DTO;
+
+public class UserInsertDTO extends UserDTO{
+
+	private static final long serialVersionUID = 1L;
+	
+	private String password;
+	
+	public UserInsertDTO() {
+		
+	}
+
+	 public UserInsertDTO(String firstName, String lastName, String email, String password) {
+	        super(firstName, lastName, email); 
+	        this.password = password;
+	    }
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+
+}
