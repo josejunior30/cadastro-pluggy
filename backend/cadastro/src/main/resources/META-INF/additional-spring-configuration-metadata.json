@@ -13,5 +13,30 @@
     "name": "app.jwt.public-key",
     "type": "java.lang.String",
     "description": "A description for 'app.jwt.public-key'"
+  },
+  {
+    "name": "pluggy.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.base-url'"
+  },
+  {
+    "name": "pluggy.client-id",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.client-id'"
+  },
+  {
+    "name": "pluggy.client-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.client-secret'"
+  },
+  {
+    "name": "pluggy.oauth-redirect-url",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.oauth-redirect-url'"
+  },
+  {
+    "name": "pluggy.include-sandbox",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.include-sandbox'"
   }
 ]}

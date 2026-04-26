@@ -63,7 +63,8 @@ public class SecurityFilterConfig {
 						.requestMatchers("/auth/login", "/h2-console/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user").permitAll()
 						.requestMatchers("/user/**").hasRole("ADMIN")
-						.anyRequest().authenticated()
+						
+						.anyRequest().permitAll()
 
 				).userDetailsService(userDetailsService)
 
