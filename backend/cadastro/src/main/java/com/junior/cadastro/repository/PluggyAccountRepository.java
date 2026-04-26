@@ -13,8 +13,9 @@ import com.junior.cadastro.entities.User;
 
 public interface PluggyAccountRepository extends JpaRepository<PluggyAccount, Long> {
 
+	   Optional<PluggyAccount> findByPluggyAccountId(String pluggyAccountId);
 
-    Optional<PluggyAccount> findByPluggyAccountId(String pluggyAccountId);
+	    List<PluggyAccount> findByUserOrderByNameAsc(User user);
 
-    List<PluggyAccount> findByUser(User user);
+	    Optional<PluggyAccount> findByIdAndUser(Long id, User user);
 }

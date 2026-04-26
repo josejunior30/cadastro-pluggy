@@ -1,14 +1,21 @@
 package com.junior.cadastro.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.junior.cadastro.DTO.ConnectTokenResponse;
+import com.junior.cadastro.DTO.PluggyAccountDTO;
+import com.junior.cadastro.DTO.PluggyTransactionDTO;
 import com.junior.cadastro.entities.PluggyAccount;
 import com.junior.cadastro.entities.PluggyItem;
 import com.junior.cadastro.entities.PluggyTransaction;
@@ -93,7 +100,34 @@ public class PluggyService {
                 totalTransactions
         );
     }
+    
+    @Transactional(readOnly = true)
+    public List<PluggyAccountDTO> findMyAccounts() {
+        User user = getAuthenticatedUser();
 
+        return accountRepository.findByUserOrderByNameAsc(user)
+                .stream()
+                .map(PluggyAccountDTO::new)
+                .toList();
+    }
+
+    
+
+	@Transactional(readOnly = true)
+	public Page<PluggyTransactionDTO> findMyTransactionsByAccount(Long accountId, Pageable pageable) {
+	    User user = getAuthenticatedUser();
+	
+	    boolean accountBelongsToUser = accountRepository.findByIdAndUser(accountId, user).isPresent();
+	
+	    if (!accountBelongsToUser) {
+	        throw new PluggyIntegrationException("Conta não encontrada para o usuário autenticado.");
+	    }
+	
+	    return transactionRepository
+	            .findByUserAndAccountIdOrderByDateDesc(user, accountId, pageable)
+	            .map(PluggyTransactionDTO::new);
+	}
+	
     private PluggyAccount saveAccount(User user, PluggyItem item, JsonNode accountNode) {
         String pluggyAccountId = accountNode.path("id").asText(null);
 
@@ -104,6 +138,8 @@ public class PluggyService {
 
         return accountRepository.save(account);
     }
+    
+    
     private int syncTransactions(User user, PluggyAccount account) {
         int page = 1;
         int totalImported = 0;
