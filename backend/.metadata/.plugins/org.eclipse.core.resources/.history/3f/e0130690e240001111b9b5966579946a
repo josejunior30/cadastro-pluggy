@@ -1,0 +1,5 @@
+spring.application.name=cadastro
+
+
+spring.profiles.active=${APP_PROFILE:test}
+spring.jpa.open-in-view=false

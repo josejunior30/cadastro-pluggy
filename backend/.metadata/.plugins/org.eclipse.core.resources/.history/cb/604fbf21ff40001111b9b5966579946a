@@ -1,0 +1,5 @@
+package com.junior.cadastro.exceptions;
+
+public class EmailAlreadyExistsException {
+
+}

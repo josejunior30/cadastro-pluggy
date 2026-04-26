@@ -1,0 +1,5 @@
+package com.junior.cadastro.controller;
+
+public class AuthController {
+
+}

@@ -19,6 +19,10 @@ target/
 *.iml
 *.ipr
 
+### Chaves JWT ###
+src/main/resources/keys/*.pem
+!src/main/resources/keys/.gitkeep
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

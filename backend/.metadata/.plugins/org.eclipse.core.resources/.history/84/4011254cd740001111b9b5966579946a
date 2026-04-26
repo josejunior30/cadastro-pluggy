@@ -1,0 +1,5 @@
+package com.junior.cadastro.repository;
+
+public class userRepository {
+
+}

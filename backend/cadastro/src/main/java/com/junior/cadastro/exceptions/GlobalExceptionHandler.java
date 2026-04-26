@@ -74,4 +74,49 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status).body(error);
     }
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Recurso não encontrado",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiError> emailAlreadyExists(EmailAlreadyExistsException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Email já cadastrado",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ApiError> database(DatabaseException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Erro de banco de dados",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
 }
