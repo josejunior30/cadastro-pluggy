@@ -119,4 +119,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status).body(error);
     }
+    
+    @ExceptionHandler(PluggyIntegrationException.class)
+    public ResponseEntity<ApiError> pluggyIntegration(
+            PluggyIntegrationException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_GATEWAY;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Erro na integração com a Pluggy",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
 }

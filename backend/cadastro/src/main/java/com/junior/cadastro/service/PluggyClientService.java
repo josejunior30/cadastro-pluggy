@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.junior.cadastro.exceptions.PluggyIntegrationException;
 
 @Service
 public class PluggyClientService {
@@ -73,7 +74,7 @@ public class PluggyClientService {
                     e.getResponseBodyAsString()
             );
 
-            throw new RuntimeException("Erro ao criar connect token na Pluggy.", e);
+            throw new PluggyIntegrationException("Erro ao criar connect token na Pluggy.", e);
         }
     }
 
@@ -102,7 +103,7 @@ public class PluggyClientService {
                     e.getResponseBodyAsString()
             );
 
-            throw new RuntimeException("Erro ao buscar contas na Pluggy.", e);
+            throw new PluggyIntegrationException("Erro ao buscar contas na Pluggy.", e);
         }
     }
 
@@ -134,7 +135,7 @@ public class PluggyClientService {
                     e.getResponseBodyAsString()
             );
 
-            throw new RuntimeException("Erro ao buscar transações na Pluggy.", e);
+            throw new PluggyIntegrationException("Erro ao buscar transações na Pluggy.", e);
         }
     }
 
@@ -180,7 +181,7 @@ public class PluggyClientService {
                     e.getResponseBodyAsString()
             );
 
-            throw new RuntimeException("Erro ao autenticar na Pluggy.", e);
+            throw new PluggyIntegrationException("Erro ao autenticar na Pluggy.", e);
         }
     }
 }
