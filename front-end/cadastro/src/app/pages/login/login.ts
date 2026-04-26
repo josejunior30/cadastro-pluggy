@@ -38,7 +38,7 @@ export class Login {
       .pipe(finalize(() => (this.carregando = false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/pluggy']);
         },
         error: (err) => {
           console.error(err);
