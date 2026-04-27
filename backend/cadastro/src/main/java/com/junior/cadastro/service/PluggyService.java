@@ -1,5 +1,6 @@
 package com.junior.cadastro.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -73,32 +74,53 @@ public class PluggyService {
                 .orElseGet(() -> new PluggyItem(itemId, user));
 
         item.setUser(user);
+        item.setSyncStatus("SYNCING");
+        item.setLastSyncError(null);
         itemRepository.save(item);
 
-        JsonNode accountsResponse = pluggyClientService.fetchAccounts(itemId);
-        JsonNode accounts = accountsResponse != null ? accountsResponse.get("results") : null;
+        try {
+            JsonNode accountsResponse = pluggyClientService.fetchAccounts(itemId);
+            JsonNode accounts = accountsResponse != null ? accountsResponse.get("results") : null;
 
-        if (accounts == null || !accounts.isArray()) {
-            log.warn("Nenhuma conta retornada pela Pluggy. itemId={}", itemId);
-            return;
+            if (accounts == null || !accounts.isArray()) {
+                item.setSyncStatus("SUCCESS");
+                item.setLastSyncAt(Instant.now());
+                itemRepository.save(item);
+
+                log.warn("Nenhuma conta retornada pela Pluggy. itemId={}", itemId);
+                return;
+            }
+
+            int totalAccounts = 0;
+            int totalTransactions = 0;
+
+            for (JsonNode accountNode : accounts) {
+                PluggyAccount account = saveAccount(user, item, accountNode);
+
+                totalAccounts++;
+                totalTransactions += syncTransactions(user, account);
+            }
+
+            item.setSyncStatus("SUCCESS");
+            item.setLastSyncError(null);
+            item.setLastSyncAt(Instant.now());
+            itemRepository.save(item);
+
+            log.info(
+                    "Item Pluggy sincronizado. itemId={} accounts={} transactions={}",
+                    itemId,
+                    totalAccounts,
+                    totalTransactions
+            );
+
+        } catch (Exception e) {
+            item.setSyncStatus("ERROR");
+            item.setLastSyncError(e.getMessage());
+            item.setLastSyncAt(Instant.now());
+            itemRepository.save(item);
+
+            throw e;
         }
-
-        int totalAccounts = 0;
-        int totalTransactions = 0;
-
-        for (JsonNode accountNode : accounts) {
-            PluggyAccount account = saveAccount(user, item, accountNode);
-
-            totalAccounts++;
-            totalTransactions += syncTransactions(user, account);
-        }
-
-        log.info(
-                "Item Pluggy sincronizado. itemId={} accounts={} transactions={}",
-                itemId,
-                totalAccounts,
-                totalTransactions
-        );
     }
     
     @Transactional(readOnly = true)

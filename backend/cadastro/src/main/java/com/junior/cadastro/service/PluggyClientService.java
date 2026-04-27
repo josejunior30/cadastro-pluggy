@@ -14,6 +14,9 @@ import org.springframework.web.client.RestClientResponseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.junior.cadastro.exceptions.PluggyIntegrationException;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+
 @Service
 public class PluggyClientService {
 
@@ -37,6 +40,8 @@ public class PluggyClientService {
         this.restClient = builder.baseUrl(baseUrl).build();
     }
 
+    @Retry(name = "pluggy", fallbackMethod = "fallbackCreateConnectToken")
+    @CircuitBreaker(name = "pluggy")
     public String createConnectToken(String clientUserId) {
         try {
             String apiKey = getApiKey();
@@ -60,7 +65,7 @@ public class PluggyClientService {
 
             if (accessToken == null || accessToken.isBlank()) {
                 log.warn("Pluggy não retornou accessToken para clientUserId={}", clientUserId);
-                throw new RuntimeException("Pluggy não retornou accessToken.");
+                throw new PluggyIntegrationException("Pluggy não retornou accessToken.");
             }
 
             log.info("Connect token da Pluggy criado com sucesso para clientUserId={}", clientUserId);
@@ -78,6 +83,8 @@ public class PluggyClientService {
         }
     }
 
+    @Retry(name = "pluggy", fallbackMethod = "fallbackFetchAccounts")
+    @CircuitBreaker(name = "pluggy")
     public JsonNode fetchAccounts(String itemId) {
         try {
             log.info("Buscando contas na Pluggy para itemId={}", itemId);
@@ -107,6 +114,8 @@ public class PluggyClientService {
         }
     }
 
+    @Retry(name = "pluggy", fallbackMethod = "fallbackFetchTransactions")
+    @CircuitBreaker(name = "pluggy")
     public JsonNode fetchTransactions(String accountId, int page) {
         try {
             log.info("Buscando transações na Pluggy para accountId={} page={}", accountId, page);
@@ -139,6 +148,7 @@ public class PluggyClientService {
         }
     }
 
+    
     private String getApiKey() {
         if (cachedApiKey != null
                 && cachedApiKeyExpiresAt != null
@@ -164,7 +174,7 @@ public class PluggyClientService {
 
             if (apiKey == null || apiKey.isBlank()) {
                 log.warn("Pluggy não retornou apiKey na autenticação.");
-                throw new RuntimeException("Não foi possível autenticar na Pluggy.");
+                throw new PluggyIntegrationException("Não foi possível autenticar na Pluggy.");
             }
 
             cachedApiKey = apiKey;
@@ -184,4 +194,36 @@ public class PluggyClientService {
             throw new PluggyIntegrationException("Erro ao autenticar na Pluggy.", e);
         }
     }
+    @SuppressWarnings("unused")
+    private String fallbackCreateConnectToken(String clientUserId, Throwable e) {
+        log.error("Fallback createConnectToken acionado. clientUserId={} erro={}",
+                clientUserId,
+                e.getClass().getSimpleName()
+        );
+
+        throw new PluggyIntegrationException("Pluggy indisponível ao criar token de conexão.", e);
+    }
+
+    @SuppressWarnings("unused")
+    private JsonNode fallbackFetchAccounts(String itemId, Throwable e) {
+        log.error("Fallback fetchAccounts acionado. itemId={} erro={}",
+                itemId,
+                e.getClass().getSimpleName()
+        );
+
+        throw new PluggyIntegrationException("Pluggy indisponível ao buscar contas.", e);
+    }
+
+    @SuppressWarnings("unused")
+    private JsonNode fallbackFetchTransactions(String accountId, int page, Throwable e) {
+        log.error("Fallback fetchTransactions acionado. accountId={} page={} erro={}",
+                accountId,
+                page,
+                e.getClass().getSimpleName()
+        );
+
+        throw new PluggyIntegrationException("Pluggy indisponível ao buscar transações.", e);
+    }
+
+   
 }

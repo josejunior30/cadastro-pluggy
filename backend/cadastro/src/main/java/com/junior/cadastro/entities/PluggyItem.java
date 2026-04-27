@@ -25,7 +25,13 @@ public class PluggyItem {
     private String pluggyItemId;
 
     private Instant createdAt;
+    @Column(length = 30)
+    private String syncStatus;
 
+    @Column(length = 1000)
+    private String lastSyncError;
+
+    private Instant lastSyncAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -33,13 +39,29 @@ public class PluggyItem {
     public PluggyItem() {
     }
 
+ 
+
     public PluggyItem(String pluggyItemId, User user) {
         this.pluggyItemId = pluggyItemId;
         this.user = user;
         this.createdAt = Instant.now();
     }
+	public PluggyItem(Long id, String pluggyItemId, Instant createdAt, String syncStatus, String lastSyncError,
+			Instant lastSyncAt, User user) {
+		super();
+		this.id = id;
+		this.pluggyItemId = pluggyItemId;
+		this.createdAt = createdAt;
+		this.syncStatus = syncStatus;
+		this.lastSyncError = lastSyncError;
+		this.lastSyncAt = lastSyncAt;
+		this.user = user;
+	}
 
-    public Long getId() {
+
+
+
+	public Long getId() {
         return id;
     }
 
@@ -62,6 +84,46 @@ public class PluggyItem {
     public void setUser(User user) {
         this.user = user;
     }
+
+	public String getSyncStatus() {
+		return syncStatus;
+	}
+
+
+	public void setSyncStatus(String syncStatus) {
+		this.syncStatus = syncStatus;
+	}
+
+
+	public String getLastSyncError() {
+		return lastSyncError;
+	}
+
+
+	public void setLastSyncError(String lastSyncError) {
+		this.lastSyncError = lastSyncError;
+	}
+
+
+	public Instant getLastSyncAt() {
+		return lastSyncAt;
+	}
+
+
+	public void setLastSyncAt(Instant lastSyncAt) {
+		this.lastSyncAt = lastSyncAt;
+	}
+
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
 
 	@Override
 	public int hashCode() {
