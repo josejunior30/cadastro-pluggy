@@ -20,6 +20,10 @@
             <p><strong>Saldo:</strong> {{ account.balance | currency: account.currencyCode }}</p>
             <p><strong>Moeda:</strong> {{ account.currencyCode }}</p>
             <p><strong>Atualizado:</strong> {{ account.updatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+
+            <a class="account-link" [routerLink]="['/transacoes', account.id]">
+              Ver transações
+            </a>
           </article>
         }
       </div>

@@ -1,0 +1,42 @@
+<section class="transacoes-container">
+  <h2>Transações</h2>
+
+  @if (vm$ | async; as vm) {
+    @if (vm.loading) {
+      <p>Carregando transações...</p>
+    } @else if (vm.errorMessage) {
+      <p class="error">{{ vm.errorMessage }}</p>
+    } @else if (vm.transactions.length === 0) {
+      <p>Nenhuma transação encontrada.</p>
+    } @else {
+      <p class="summary">
+        <strong>Conta:</strong> {{ vm.accountId }} | <strong>Total:</strong> {{ vm.totalElements }}
+      </p>
+
+      <div class="table-wrapper">
+        <table class="transacoes-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transaction of vm.transactions; track transaction.id) {
+              <tr>
+                <td>{{ transaction.date | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ transaction.amount | currency: transaction.currencyCode }}</td>
+                <td>{{ transaction.type }}</td>
+                <td>{{ transaction.description }}</td>
+                <td>{{ transaction.status }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

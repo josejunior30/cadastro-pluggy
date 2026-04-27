@@ -3,6 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ContaService } from '../../services/conta.service';
 import { PluggyAccountDTO } from '../../models/conta';
 import { map, startWith, catchError, of, shareReplay } from 'rxjs';
+import { RouterModule } from '@angular/router';
 
 type ContaVm = {
   loading: boolean;
@@ -13,7 +14,7 @@ type ContaVm = {
 @Component({
   selector: 'app-conta',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './conta.html',
   styleUrl: './conta.css',
 })

@@ -1,0 +1,32 @@
+.transacoes-container {
+  padding: 16px;
+}
+
+.summary {
+  margin-bottom: 12px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.transacoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.transacoes-table th,
+.transacoes-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.transacoes-table th {
+  font-weight: 600;
+}
+
+.error {
+  color: #c62828;
+}
