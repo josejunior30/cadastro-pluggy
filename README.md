@@ -39,6 +39,7 @@ Este projeto demonstra competências práticas em desenvolvimento full stack, in
 - Logs para acompanhamento de autenticação e sincronização.
 - Cache temporário da API key da Pluggy.
 - Retry e circuit breaker para chamadas externas.
+-  Testes automatizados para validação da aplicação
 
 ### Frontend
 
@@ -70,6 +71,9 @@ Este projeto demonstra competências práticas em desenvolvimento full stack, in
 - Resilience4j
 - REST Client
 - JWT
+- JUnit 5
+- Mockito
+- Docker
 
 ### Frontend
 
@@ -101,6 +105,11 @@ cadastro/
 │       │   ├── security/
 │       │   ├── service/
 │       │   └── util/
+│       ├── src/test/java/com/junior/cadastro/
+│       │   ├── controller/
+│       │   ├── security/
+│       │   ├── service/
+│       │   
 │       └── pom.xml
 │
 └── front-end/
@@ -251,6 +260,9 @@ Este projeto vai além de um CRUD simples. Ele inclui recursos importantes para 
 - Separação clara entre controller, service, repository e DTO.
 - Frontend com rotas protegidas.
 - Uso de services Angular para centralizar comunicação com API.
+- Conteinerização com Docker para padronização do ambiente
+- Testes automatizados para dar mais segurança à evolução do projeto
+- Estrutura preparada para crescimento do domínio
 - Estrutura preparada para crescimento do domínio.
 
 ---
@@ -259,11 +271,8 @@ Este projeto vai além de um CRUD simples. Ele inclui recursos importantes para 
 
 ### Infraestrutura e DevOps
 
-- [ ] Containerizar o backend com Docker.
-- [ ] Containerizar o frontend com Docker.
-- [ ] Criar `docker-compose.yml` para subir frontend, backend e banco de dados juntos.
 - [ ] Substituir H2 por PostgreSQL em ambiente de desenvolvimento e produção.
-- [ ] Criar profiles do Spring para `dev`, `test` e `prod`.
+- [ ] Criar profiles do Spring para `dev` e `prod`.
 - [ ] Adicionar pipeline de CI/CD com GitHub Actions.
 - [ ] Executar testes automaticamente a cada pull request.
 - [ ] Gerar build automatizado do frontend e backend.
@@ -276,11 +285,8 @@ Este projeto vai além de um CRUD simples. Ele inclui recursos importantes para 
 - [ ] Validar assinatura ou origem dos webhooks.
 - [ ] Melhorar tratamento global de exceções com `@ControllerAdvice`.
 - [ ] Adicionar documentação da API com Swagger/OpenAPI.
-- [ ] Criar testes unitários para services.
-- [ ] Criar testes de integração para controllers.
 - [ ] Melhorar regras de autorização por perfil de usuário.
 - [ ] Adicionar refresh token.
-- [ ] Adicionar expiração e rotação de tokens.
 - [ ] Persistir histórico de sincronizações.
 - [ ] Criar auditoria de ações sensíveis.
 - [ ] Melhorar observabilidade com métricas e health checks.
@@ -296,13 +302,11 @@ Este projeto vai além de um CRUD simples. Ele inclui recursos importantes para 
 - [ ] Implementar refresh automático após sincronização.
 - [ ] Criar testes de componentes.
 - [ ] Melhorar interceptors para tratamento global de erros HTTP.
-- [ ] Adicionar logout automático quando o token expirar.
 - [ ] Melhorar responsividade mobile.
 
 ### Segurança
 
 - [ ] Remover qualquer configuração sensível do código.
-- [ ] Usar variáveis de ambiente para secrets.
 - [ ] Adicionar rate limit em endpoints de autenticação.
 - [ ] Adicionar validações mais fortes nos DTOs.
 - [ ] Revisar política de CORS.
@@ -379,4 +383,4 @@ GitHub: [josejunior30](https://github.com/josejunior30)
 
 Projeto em desenvolvimento.
 
-A próxima etapa recomendada é evoluir a aplicação para um ambiente mais próximo de produção, com Docker, PostgreSQL, webhooks, testes automatizados, documentação OpenAPI e pipeline de CI/CD.
+A próxima etapa recomendada é evoluir a aplicação para um ambiente mais próximo de produção,  PostgreSQL, webhooks, documentação OpenAPI e pipeline de CI/CD.
