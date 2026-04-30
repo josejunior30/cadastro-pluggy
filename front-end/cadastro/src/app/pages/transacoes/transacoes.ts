@@ -17,6 +17,7 @@ import { PluggyTransactionDTO } from '../../models/conta';
 import { TransacoesService } from '../../services/transacoes.service';
 import { PaginationComponent } from '../../components/pagination/pagination';
 import { BackButtonComponent } from '../../components/back-button/back-button';
+import { MenuComponent } from '../../components/menu/menu';
 
 type TransacoesVm = {
   loading: boolean;
@@ -31,7 +32,7 @@ type TransacoesVm = {
 @Component({
   selector: 'app-transacoes',
   standalone: true,
-  imports: [CommonModule, PaginationComponent,BackButtonComponent],
+  imports: [CommonModule, PaginationComponent,BackButtonComponent,MenuComponent],
   templateUrl: './transacoes.html',
   styleUrl: './transacoes.css',
 })

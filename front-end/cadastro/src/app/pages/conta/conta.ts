@@ -6,6 +6,7 @@ import { catchError, map, of, shareReplay, startWith } from 'rxjs';
 
 import { ContaService } from '../../services/conta.service';
 import { PluggyAccountDTO } from '../../models/conta';
+import { MenuComponent } from '../../components/menu/menu';
 
 type ContaVm = {
   loading: boolean;
@@ -16,7 +17,7 @@ type ContaVm = {
 @Component({
   selector: 'app-conta',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,[MenuComponent]],
   templateUrl: './conta.html',
   styleUrl: './conta.css',
 })

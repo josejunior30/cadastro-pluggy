@@ -1,0 +1,51 @@
+<section class="min-h-screen px-4 py-6 md:px-6" style="background-color: var(--color-app-bg);">
+  <div class="mx-auto max-w-6xl">
+    <div class="overflow-hidden rounded-3xl bg-(--color-secundary) p-8 text-white shadow-2xl md:p-10">
+      <div class="max-w-3xl">
+        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/90">
+          Bem-vindo
+        </span>
+
+        <h1 class="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
+          Gerencie suas contas e transações em um só lugar
+        </h1>
+
+        <p class="mt-4 max-w-2xl text-base leading-7 text-white/80 md:text-lg">
+          Centralize a conexão bancária, acompanhe saldos e consulte transações
+          com uma experiência simples, organizada e integrada ao seu sistema.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8 flex flex-wrap justify-center gap-10">
+      @for (atalho of atalhos; track atalho.route + atalho.title) {
+<article class="flex w-full max-w-sm flex-col justify-between rounded-3xl bg-white p-6 shadow-xl ring-1 ring-black/5">          <div>
+            <div
+              class="inline-flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-bold text-white"
+              style="background-color: var(--color-primary);"
+            >
+              {{ atalho.title.charAt(0) }}
+            </div>
+
+            <h2 class="mt-5 text-xl font-bold text-gray-900">
+              {{ atalho.title }}
+            </h2>
+
+            <p class="mt-3 text-sm leading-6 text-gray-600">
+              {{ atalho.description }}
+            </p>
+          </div>
+
+          <a
+            [routerLink]="atalho.route"
+            class="mt-6 inline-flex items-center gap-2 text-sm font-bold transition"
+            [style.color]="'var(--color-primary)'"
+          >
+            {{ atalho.buttonLabel }}
+            <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      }
+    </div>
+  </div>
+</section>

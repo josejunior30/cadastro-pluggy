@@ -6,7 +6,12 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),
   },
-
+  {
+    path: 'boas-vindas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/boas-vindas/boas-vindas').then((m) => m.BoasVindas),
+  },
     {
     path: 'pluggy',
      canActivate: [authGuard],

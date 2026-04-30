@@ -1,16 +1,20 @@
-<section class="min-h-screen bg-(--color-app-bg) px-4 py-8 sm:px-6 lg:px-8">
+<app-menu
+  userName="José Junior"
+  userEmail="jose@email.com"
+  avatarUrl=""
+></app-menu>
+
+<section class="ml-64 min-h-screen bg-(--color-app-bg) px-4 py-8 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-6xl space-y-6">
     <div class="rounded-2xl bg-white p-6 shadow-xl">
       <div class="flex flex-col gap-1 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 ">Transações</h1>
-
-        <p class="text-sm text-gray-600">Consulte as transações vinculadas à conta selecionada.</p>
+        <h1 class="text-4xl font-bold text-gray-900">Transações</h1>
+        <p class="text-sm text-gray-600">
+          Consulte as transações vinculadas à conta selecionada.
+        </p>
       </div>
 
-    <app-back-button
-      label="Voltar"
-      fallbackUrl="/contas"
-    ></app-back-button>
+   
     </div>
 
     @if (vm$ | async; as vm) {
@@ -31,8 +35,6 @@
       } @else {
         <div class="rounded-2xl bg-white p-6 shadow-xl">
           <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-
-
             <p class="text-sm text-gray-700">
               <strong class="font-semibold text-gray-900">Total:</strong>
               {{ vm.totalElements }}
@@ -51,16 +53,16 @@
                 </tr>
               </thead>
 
-            <tbody>
-              @for (transaction of vm.transactions; track transaction.id) {
-                <tr>
-                  <td>{{ transaction.date | date: 'dd/MM/yyyy' }}</td>
-                  <td>{{ transaction.amount | currency: transaction.currencyCode }}</td>
-                  <td>{{ translateType(transaction.type) }}</td>
-                  <td>{{ transaction.description }}</td>
-                  <td>{{ translateStatus(transaction.status) }}</td>
-                </tr>
-              }
+              <tbody>
+                @for (transaction of vm.transactions; track transaction.id) {
+                  <tr>
+                    <td>{{ transaction.date | date: 'dd/MM/yyyy' }}</td>
+                    <td>{{ transaction.amount | currency: transaction.currencyCode }}</td>
+                    <td>{{ translateType(transaction.type) }}</td>
+                    <td>{{ transaction.description }}</td>
+                    <td>{{ translateStatus(transaction.status) }}</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>

@@ -1,108 +1,118 @@
-<section class="min-h-screen px-4 py-6" style="background-color: var(--color-app-bg);">
-  <div class="mx-auto max-w-6xl">
-    <div class="mb-6 flex items-end justify-between gap-4">
-      <div class="section-heading">
-        <h2 class="section-title">Todas as contas</h2>
-        <p class="section-subtitle">Selecione uma conta para visualizar as transações.</p>
+<div class="min-h-screen bg-(--color-app-bg)">
+  <app-menu
+    userName="José Junior"
+    userEmail="jose@email.com"
+    avatarUrl=""
+  />
+
+  <section class="ml-64 min-h-screen px-4 py-6">
+    <div class="mx-auto max-w-6xl">
+      <div class="rounded-2xl bg-white p-6 shadow-xl">
+        <div class="flex flex-col gap-1 text-center">
+          <h1 class="text-4xl font-bold text-gray-900">
+            Todas as contas
+          </h1>
+
+          <p class="text-sm text-gray-600">
+            Selecione uma conta para visualizar as transações.
+          </p>
+        </div>
       </div>
 
       @if (vm$ | async; as vm) {
-        @if (!vm.loading && !vm.errorMessage && vm.accounts.length > 0) {
-          <div class="page-counter">
-            Total: {{ vm.accounts.length }}
+        @if (vm.loading) {
+          <div class="loading-div">
+            <p class="loading-text">Carregando contas...</p>
+          </div>
+        } @else if (vm.errorMessage) {
+          <div class="alert-error">
+            {{ vm.errorMessage }}
+          </div>
+        } @else if (vm.accounts.length === 0) {
+          <div class="surface-card">
+            <p class="surface-text">Nenhuma conta encontrada.</p>
+          </div>
+        } @else {
+          <div class="account-grid mt-14">
+            @for (account of vm.accounts; track account.id) {
+              <a [routerLink]="['/transacoes', account.id]" class="account-card-link">
+                <article
+                  class="account-card"
+                  [class.account-card--credit]="account.type === 'CREDIT'"
+                >
+                  <div
+                    class="account-card-glow"
+                    [class.account-card-glow--credit]="account.type === 'CREDIT'"
+                  ></div>
+
+                  @if (account.type === 'CREDIT') {
+                    <div class="account-card-watermark">CREDIT</div>
+                  }
+
+                  <div class="account-card-content">
+                    <div class="account-card-top">
+                      <div class="min-w-0">
+                        <p class="account-card-label">
+                          {{ account.type === 'CREDIT' ? 'Cartão' : 'Conta' }}
+                        </p>
+
+                        <h3 class="account-card-title">
+                          {{ account.name }}
+                        </h3>
+                      </div>
+
+                      <span
+                        class="account-card-badge"
+                        [class.account-card-badge--credit]="account.type === 'CREDIT'"
+                      >
+                        {{ account.type === 'CREDIT' ? 'Crédito' : account.type }}
+                      </span>
+                    </div>
+
+                    <div class="space-y-3">
+                      <div>
+                        <p class="account-card-value-label">
+                          {{ account.type === 'CREDIT' ? 'Valor atual' : 'Saldo disponível' }}
+                        </p>
+
+                        <p class="account-card-value">
+                          {{ account.balance | currency: account.currencyCode }}
+                        </p>
+                      </div>
+
+                      <div class="account-card-meta-grid">
+                        <div class="account-card-meta-box">
+                          <p class="account-card-meta-label">Subtipo</p>
+
+                          <p class="account-card-meta-value">
+                            {{ formatSubtype(account.subtype) }}
+                          </p>
+                        </div>
+
+                        <div class="account-card-meta-box">
+                          <p class="account-card-meta-label">Moeda</p>
+
+                          <p class="account-card-meta-value">
+                            {{ account.currencyCode }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="account-card-footer">
+                      <p class="account-card-meta-label">Atualizado em</p>
+
+                      <p class="account-card-footer-value">
+                        {{ account.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              </a>
+            }
           </div>
         }
       }
     </div>
-
-    @if (vm$ | async; as vm) {
-      @if (vm.loading) {
-        <div class="loading-div">
-          <p class="loading-text">Carregando contas...</p>
-        </div>
-      } @else if (vm.errorMessage) {
-        <div class="alert-error">
-          {{ vm.errorMessage }}
-        </div>
-      } @else if (vm.accounts.length === 0) {
-        <div class="surface-card">
-          <p class="surface-text">Nenhuma conta encontrada.</p>
-        </div>
-      } @else {
-        <div class="account-grid">
-          @for (account of vm.accounts; track account.id) {
-            <a [routerLink]="['/transacoes', account.id]" class="account-card-link">
-              <article
-                class="account-card"
-                [class.account-card--credit]="account.type === 'CREDIT'"
-              >
-                <div
-                  class="account-card-glow"
-                  [class.account-card-glow--credit]="account.type === 'CREDIT'"
-                ></div>
-
-                @if (account.type === 'CREDIT') {
-                  <div class="account-card-watermark">CREDIT</div>
-                }
-
-                <div class="account-card-content">
-                  <div class="account-card-top">
-                    <div class="min-w-0">
-                      <p class="account-card-label">
-                        {{ account.type === 'CREDIT' ? 'Cartão' : 'Conta' }}
-                      </p>
-                      <h3 class="account-card-title">
-                        {{ account.name }}
-                      </h3>
-                    </div>
-
-                    <span
-                      class="account-card-badge"
-                      [class.account-card-badge--credit]="account.type === 'CREDIT'"
-                    >
-                      {{ account.type === 'CREDIT' ? 'Crédito' : account.type }}
-                    </span>
-                  </div>
-
-                  <div class="space-y-3">
-                    <div>
-                      <p class="account-card-value-label">
-                        {{ account.type === 'CREDIT' ? 'Valor atual' : 'Saldo disponível' }}
-                      </p>
-                      <p class="account-card-value">
-                        {{ account.balance | currency: account.currencyCode }}
-                      </p>
-                    </div>
-
-                    <div class="account-card-meta-grid">
-                      <div class="account-card-meta-box">
-                        <p class="account-card-meta-label">Subtipo</p>
-                        <p class="account-card-meta-value">
-                          {{ formatSubtype(account.subtype) }}
-                        </p>
-                      </div>
-
-                      <div class="account-card-meta-box">
-                        <p class="account-card-meta-label">Moeda</p>
-                        <p class="account-card-meta-value">
-                          {{ account.currencyCode }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="account-card-footer">
-                    <p class="account-card-meta-label">Atualizado em</p>
-                    <p class="account-card-footer-value">
-                      {{ account.updatedAt | date:'dd/MM/yyyy HH:mm' }}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            </a>
-          }
-        </div>
-      }
-    }
-  </div>
-</section>
+  </section>
+</div>

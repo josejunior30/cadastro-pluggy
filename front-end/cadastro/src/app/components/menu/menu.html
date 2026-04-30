@@ -1,0 +1,74 @@
+<aside class="fixed left-0 top-0 z-9999 flex min-h-screen w-64 flex-col  bg-(--color-secundary) px-5 py-6 text-white shadow-xl">
+  <div class="flex items-center gap-4 border-b border-white/30 pb-6">
+    <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-lg font-bold text-[#ed7947]">
+      <img
+        *ngIf="avatarUrl; else initialsTemplate"
+        [src]="avatarUrl"
+        [alt]="userName"
+        class="h-full w-full object-cover"
+      />
+
+      <ng-template #initialsTemplate>
+        <span>{{ userInitials }}</span>
+      </ng-template>
+    </div>
+
+    <div class="min-w-0">
+      <strong class="block truncate text-base font-bold">
+        {{ userName }}
+      </strong>
+
+      <small *ngIf="userEmail" class="block truncate text-xs text-white/80">
+        {{ userEmail }}
+      </small>
+    </div>
+  </div>
+
+  <nav class="mt-8 flex flex-1 flex-col gap-2">
+    <a
+      routerLink="/pluggy"
+      routerLinkActive="bg-(--color-app-bg) text-[#ed7947]"
+      class="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+    >
+      Pluggy
+    </a>
+      <a
+      routerLink="/conta"
+      routerLinkActive="bg-(--color-app-bg) text-[#ed7947]"
+      class="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+    >
+      Contas
+    </a>
+ <a
+      routerLink="/#"
+      routerLinkActive="bg-(--color-app-bg) text-[#ed7947]"
+      class="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+    >
+      Usuarios
+    </a>
+    <a
+      routerLink="/#"
+      routerLinkActive="bg-(--color-app-bg) text-[#ed7947]"
+      class="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+    >
+      Suporte
+    </a>
+
+
+    <a
+      routerLink="/transacoes/1"
+      routerLinkActive="bg-(--color-app-bg) text-[#ed7947]"
+      class="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+    >
+      Transações
+    </a>
+  </nav>
+
+  <button
+    type="button"
+    (click)="logout()"
+    class="mt-6 rounded-xl bg-white/20 px-4 py-3 text-sm font-bold text-white transition hover:bg-(--color-primary) hover:text-white"
+  >
+    Sair
+  </button>
+</aside>
