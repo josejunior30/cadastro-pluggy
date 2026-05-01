@@ -2,6 +2,7 @@ package com.junior.cadastro.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +28,12 @@ import com.junior.cadastro.repository.PluggyItemRepository;
 import com.junior.cadastro.repository.PluggyTransactionRepository;
 import com.junior.cadastro.repository.UserRepository;
 
+
 @Service
 public class PluggyService {
 
     private static final Logger log = LoggerFactory.getLogger(PluggyService.class);
+
     private final PluggyMapper pluggyMapper;
     private final PluggyClientService pluggyClientService;
     private final UserRepository userRepository;
@@ -67,7 +70,74 @@ public class PluggyService {
     @Transactional
     public void syncItem(String itemId) {
         User user = getAuthenticatedUser();
+        syncItemForUser(user, itemId);
+    }
 
+    @Transactional
+    public void syncItemFromWebhook(String itemId, String clientUserId) {
+        if (itemId == null || itemId.isBlank()) {
+            throw new PluggyIntegrationException("Webhook Pluggy sem itemId.");
+        }
+
+        if (clientUserId == null || clientUserId.isBlank()) {
+            throw new PluggyIntegrationException("Webhook Pluggy sem clientUserId.");
+        }
+
+        Long userId;
+
+        try {
+            userId = Long.valueOf(clientUserId);
+        } catch (NumberFormatException e) {
+            throw new PluggyIntegrationException(
+                    "clientUserId inválido recebido da Pluggy: " + clientUserId,
+                    e
+            );
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new PluggyIntegrationException(
+                        "Usuário não encontrado para clientUserId=" + clientUserId
+                ));
+
+        syncItemForUser(user, itemId);
+    }
+
+    @Transactional
+    public void markItemAsErrorFromWebhook(String itemId, Map<String, Object> error) {
+        if (itemId == null || itemId.isBlank()) {
+            log.warn("Webhook item/error recebido sem itemId.");
+            return;
+        }
+
+        PluggyItem item = itemRepository.findByPluggyItemId(itemId)
+                .orElseGet(() -> new PluggyItem(itemId, null));
+
+        item.setSyncStatus("ERROR");
+        item.setLastSyncError(formatWebhookError(error));
+        item.setLastSyncAt(Instant.now());
+
+        itemRepository.save(item);
+
+        log.warn("Item Pluggy marcado como ERROR via webhook. itemId={} error={}", itemId, error);
+    }
+
+    @Transactional
+    public void markItemAsDeletedFromWebhook(String itemId) {
+        if (itemId == null || itemId.isBlank()) {
+            log.warn("Webhook item/deleted recebido sem itemId.");
+            return;
+        }
+
+        itemRepository.findByPluggyItemId(itemId).ifPresent(item -> {
+            item.setSyncStatus("DELETED");
+            item.setLastSyncAt(Instant.now());
+            itemRepository.save(item);
+        });
+
+        log.info("Item Pluggy marcado como DELETED via webhook. itemId={}", itemId);
+    }
+
+    private void syncItemForUser(User user, String itemId) {
         log.info("Sincronizando item Pluggy. userId={} itemId={}", user.getId(), itemId);
 
         PluggyItem item = itemRepository.findByPluggyItemId(itemId)
@@ -122,7 +192,7 @@ public class PluggyService {
             throw e;
         }
     }
-    
+
     @Transactional(readOnly = true)
     public List<PluggyAccountDTO> findMyAccounts() {
         User user = getAuthenticatedUser();
@@ -133,23 +203,21 @@ public class PluggyService {
                 .toList();
     }
 
-    
+    @Transactional(readOnly = true)
+    public Page<PluggyTransactionDTO> findMyTransactionsByAccount(Long accountId, Pageable pageable) {
+        User user = getAuthenticatedUser();
 
-	@Transactional(readOnly = true)
-	public Page<PluggyTransactionDTO> findMyTransactionsByAccount(Long accountId, Pageable pageable) {
-	    User user = getAuthenticatedUser();
-	
-	    boolean accountBelongsToUser = accountRepository.findByIdAndUser(accountId, user).isPresent();
-	
-	    if (!accountBelongsToUser) {
-	        throw new PluggyIntegrationException("Conta não encontrada para o usuário autenticado.");
-	    }
-	
-	    return transactionRepository
-	            .findByUserAndAccountIdOrderByDateDesc(user, accountId, pageable)
-	            .map(PluggyTransactionDTO::new);
-	}
-	
+        boolean accountBelongsToUser = accountRepository.findByIdAndUser(accountId, user).isPresent();
+
+        if (!accountBelongsToUser) {
+            throw new PluggyIntegrationException("Conta não encontrada para o usuário autenticado.");
+        }
+
+        return transactionRepository
+                .findByUserAndAccountIdOrderByDateDesc(user, accountId, pageable)
+                .map(PluggyTransactionDTO::new);
+    }
+
     private PluggyAccount saveAccount(User user, PluggyItem item, JsonNode accountNode) {
         String pluggyAccountId = accountNode.path("id").asText(null);
 
@@ -160,8 +228,7 @@ public class PluggyService {
 
         return accountRepository.save(account);
     }
-    
-    
+
     private int syncTransactions(User user, PluggyAccount account) {
         int page = 1;
         int totalImported = 0;
@@ -204,8 +271,22 @@ public class PluggyService {
 
         transactionRepository.save(transaction);
     }
-    
-    
+
+    private String formatWebhookError(Map<String, Object> error) {
+        if (error == null || error.isEmpty()) {
+            return "Erro recebido via webhook Pluggy.";
+        }
+
+        String message = String.valueOf(error.getOrDefault("message", "Erro recebido via webhook Pluggy."));
+        String code = String.valueOf(error.getOrDefault("code", ""));
+
+        if (code.isBlank() || "null".equalsIgnoreCase(code)) {
+            return message;
+        }
+
+        return code + " - " + message;
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -232,5 +313,4 @@ public class PluggyService {
                         "Usuário autenticado não encontrado: " + resolvedEmail
                 ));
     }
-
 }

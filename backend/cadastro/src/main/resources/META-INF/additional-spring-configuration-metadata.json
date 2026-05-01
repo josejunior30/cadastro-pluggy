@@ -83,5 +83,15 @@
     "name": "resilience4j.circuitbreaker.instances.pluggy.wait-duration-in-open-state",
     "type": "java.lang.String",
     "description": "A description for 'resilience4j.circuitbreaker.instances.pluggy.wait-duration-in-open-state'"
+  },
+  {
+    "name": "pluggy.webhook-url",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.webhook-url'"
+  },
+  {
+    "name": "pluggy.webhook-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'pluggy.webhook-secret'"
   }
 ]}

@@ -68,6 +68,7 @@ public class SecurityFilterConfig {
 				                    "/v3/api-docs/**"
 				                ).permitAll()
 						.requestMatchers(HttpMethod.POST, "/user").permitAll()
+						.requestMatchers("/webhooks/pluggy").permitAll()
 						.requestMatchers("/user/**").hasRole("ADMIN")
 						
 						.anyRequest().permitAll()

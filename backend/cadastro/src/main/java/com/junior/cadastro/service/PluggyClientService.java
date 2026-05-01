@@ -30,6 +30,9 @@ public class PluggyClientService {
     @Value("${pluggy.client-secret}")
     private String clientSecret;
 
+    @Value("${pluggy.webhook-url:}")
+    private String webhookUrl;
+
     private String cachedApiKey;
     private Instant cachedApiKeyExpiresAt;
 
@@ -50,10 +53,14 @@ public class PluggyClientService {
             options.put("clientUserId", clientUserId);
             options.put("avoidDuplicates", true);
 
+            if (webhookUrl != null && !webhookUrl.isBlank()) {
+                options.put("webhookUrl", webhookUrl);
+            }
+
             Map<String, Object> body = Map.of("options", options);
 
             log.info("Criando connect token da Pluggy para clientUserId={}", clientUserId);
-
+            log.info("Body enviado para Pluggy connect_token: {}", body);
             JsonNode response = restClient.post()
                     .uri("/connect_token")
                     .header("X-API-KEY", apiKey)
@@ -148,7 +155,6 @@ public class PluggyClientService {
         }
     }
 
-    
     private String getApiKey() {
         if (cachedApiKey != null
                 && cachedApiKeyExpiresAt != null
@@ -194,9 +200,11 @@ public class PluggyClientService {
             throw new PluggyIntegrationException("Erro ao autenticar na Pluggy.", e);
         }
     }
+
     @SuppressWarnings("unused")
     private String fallbackCreateConnectToken(String clientUserId, Throwable e) {
-        log.error("Fallback createConnectToken acionado. clientUserId={} erro={}",
+        log.error(
+                "Fallback createConnectToken acionado. clientUserId={} erro={}",
                 clientUserId,
                 e.getClass().getSimpleName()
         );
@@ -206,7 +214,8 @@ public class PluggyClientService {
 
     @SuppressWarnings("unused")
     private JsonNode fallbackFetchAccounts(String itemId, Throwable e) {
-        log.error("Fallback fetchAccounts acionado. itemId={} erro={}",
+        log.error(
+                "Fallback fetchAccounts acionado. itemId={} erro={}",
                 itemId,
                 e.getClass().getSimpleName()
         );
@@ -216,7 +225,8 @@ public class PluggyClientService {
 
     @SuppressWarnings("unused")
     private JsonNode fallbackFetchTransactions(String accountId, int page, Throwable e) {
-        log.error("Fallback fetchTransactions acionado. accountId={} page={} erro={}",
+        log.error(
+                "Fallback fetchTransactions acionado. accountId={} page={} erro={}",
                 accountId,
                 page,
                 e.getClass().getSimpleName()
@@ -224,6 +234,4 @@ public class PluggyClientService {
 
         throw new PluggyIntegrationException("Pluggy indisponível ao buscar transações.", e);
     }
-
-   
 }
