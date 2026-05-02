@@ -14,8 +14,27 @@ services:
       PLUGGY_BASE_URL: ${PLUGGY_BASE_URL:-https://api.pluggy.ai}
       PLUGGY_CLIENT_ID: ${PLUGGY_CLIENT_ID}
       PLUGGY_CLIENT_SECRET: ${PLUGGY_CLIENT_SECRET}
-      PLUGGY_OAUTH_REDIRECT_URL: http://localhost:4200/pluggy/callback
+      PLUGGY_OAUTH_REDIRECT_URL: ${PLUGGY_OAUTH_REDIRECT_URL:-http://localhost:4200/pluggy/callback}
       PLUGGY_INCLUDE_SANDBOX: "true"
+
+      PLUGGY_WEBHOOK_URL: ${PLUGGY_WEBHOOK_URL:-}
+      PLUGGY_WEBHOOK_SECRET: ${PLUGGY_WEBHOOK_SECRET:-}
+
+      SPRINGDOC_SHOW_ACTUATOR: "true"
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: always
+      MANAGEMENT_METRICS_TAGS_APPLICATION: cadastro-pluggy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'wget -qO- http://localhost:8080/actuator/health | grep -q ''"status":"UP"'' || exit 1',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   frontend:
     container_name: cadastro-frontend
@@ -26,6 +45,7 @@ services:
         API_URL: /api
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "4200:80"
