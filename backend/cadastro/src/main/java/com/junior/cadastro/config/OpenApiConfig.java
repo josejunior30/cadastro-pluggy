@@ -48,124 +48,124 @@ import io.swagger.v3.oas.models.servers.Server;
 )
 public class OpenApiConfig {
 
-    @Bean
-    OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("Ambiente local"))
-                .components(new Components()
-                        .addSecuritySchemes("bearerAuth", bearerAuthScheme())
+	@Bean
+	OpenAPI customOpenAPI() {
+	    return new OpenAPI()
+	            .addServersItem(new Server()
+	                    .url("http://localhost:8080")
+	                    .description("Ambiente local"))
+	            .components(new Components()
+	                    .addSecuritySchemes("bearerAuth", bearerAuthScheme())
 
-                        .addSchemas("ApiError", new Schema<ApiError>()
-                                .name("ApiError")
-                                .description("Resposta padrão de erro da API"))
+	                    .addSchemas("ApiError", new Schema<ApiError>()
+	                            .name("ApiError")
+	                            .description("Resposta padrão de erro da API"))
 
-                        .addResponses("BadRequest", errorResponse(
-                                "Requisição inválida",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 400,
-                                  "error": "JSON inválido",
-                                  "message": "O corpo da requisição está inválido ou malformado.",
-                                  "path": "/user"
-                                }
-                                """
-                        ))
+	                    .addResponses("BadRequest", errorResponse(
+	                            "Requisição inválida",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 400,
+	                              "error": "JSON inválido",
+	                              "message": "O corpo da requisição está inválido ou malformado.",
+	                              "path": "/user"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("Unauthorized", errorResponse(
-                                "Não autenticado ou credenciais inválidas",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 401,
-                                  "error": "Não autenticado",
-                                  "message": "Token ausente, inválido ou expirado",
-                                  "path": "/pluggy/accounts"
-                                }
-                                """
-                        ))
+	                    .addResponses("Unauthorized", errorResponse(
+	                            "Não autenticado ou credenciais inválidas",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 401,
+	                              "error": "Não autenticado",
+	                              "message": "Token ausente, inválido ou expirado",
+	                              "path": "/pluggy/accounts"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("Forbidden", errorResponse(
-                                "Acesso negado",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 403,
-                                  "error": "Acesso negado",
-                                  "message": "Você não tem permissão para acessar este recurso",
-                                  "path": "/user"
-                                }
-                                """
-                        ))
+	                    .addResponses("Forbidden", errorResponse(
+	                            "Acesso negado",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 403,
+	                              "error": "Acesso negado",
+	                              "message": "Você não tem permissão para acessar este recurso",
+	                              "path": "/user"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("NotFound", errorResponse(
-                                "Recurso não encontrado",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 404,
-                                  "error": "Recurso não encontrado",
-                                  "message": "Usuário não encontrado. Id: 99",
-                                  "path": "/user/99"
-                                }
-                                """
-                        ))
+	                    .addResponses("NotFound", errorResponse(
+	                            "Recurso não encontrado",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 404,
+	                              "error": "Recurso não encontrado",
+	                              "message": "Usuário não encontrado. Id: 99",
+	                              "path": "/user/99"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("Conflict", errorResponse(
-                                "Conflito de dados",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 409,
-                                  "error": "Email já cadastrado",
-                                  "message": "Já existe um usuário cadastrado com este email.",
-                                  "path": "/user"
-                                }
-                                """
-                        ))
+	                    .addResponses("Conflict", errorResponse(
+	                            "Conflito de dados",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 409,
+	                              "error": "Email já cadastrado",
+	                              "message": "Já existe um usuário cadastrado com este email.",
+	                              "path": "/user"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("UnprocessableEntity", errorResponse(
-                                "Erro de validação",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 422,
-                                  "error": "Erro de validação",
-                                  "message": "email: email obrigatório",
-                                  "path": "/auth/login"
-                                }
-                                """
-                        ))
+	                    .addResponses("UnprocessableEntity", errorResponse(
+	                            "Erro de validação",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 422,
+	                              "error": "Erro de validação",
+	                              "message": "email: email obrigatório",
+	                              "path": "/auth/login"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("BadGateway", errorResponse(
-                                "Erro na integração com a Pluggy",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 502,
-                                  "error": "Erro na integração com a Pluggy",
-                                  "message": "Pluggy indisponível ao buscar contas.",
-                                  "path": "/pluggy/items/sync"
-                                }
-                                """
-                        ))
+	                    .addResponses("BadGateway", errorResponse(
+	                            "Erro na integração com a Pluggy",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 502,
+	                              "error": "Erro na integração com a Pluggy",
+	                              "message": "Pluggy indisponível ao buscar contas.",
+	                              "path": "/pluggy/items/sync"
+	                            }
+	                            """
+	                    ))
 
-                        .addResponses("InternalServerError", errorResponse(
-                                "Erro interno inesperado",
-                                """
-                                {
-                                  "timestamp": "2026-05-02T12:00:00Z",
-                                  "status": 500,
-                                  "error": "Erro interno",
-                                  "message": "Ocorreu um erro inesperado no servidor.",
-                                  "path": "/user"
-                                }
-                                """
-                        )));
-    }
-
+	                    .addResponses("InternalServerError", errorResponse(
+	                            "Erro interno inesperado",
+	                            """
+	                            {
+	                              "timestamp": "2026-05-02T12:00:00Z",
+	                              "status": 500,
+	                              "error": "Erro interno",
+	                              "message": "Ocorreu um erro inesperado no servidor.",
+	                              "path": "/user"
+	                            }
+	                            """
+	                    )));
+	}
+	
     private SecurityScheme bearerAuthScheme() {
         return new SecurityScheme()
                 .name("bearerAuth")

@@ -61,17 +61,20 @@ public class SecurityFilterConfig {
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						   .requestMatchers(
-				                    "/auth/login",
-				                    "/h2-console/**",
-				                    "/swagger-ui.html",
-				                    "/swagger-ui/**",
-				                    "/v3/api-docs/**"
+								   "/auth/login",
+		                            "/webhooks/pluggy",
+		                            "/v3/api-docs/**",
+		                            "/swagger-ui/**",
+		                            "/swagger-ui.html",
+		                            "/actuator/**",
+		                          
+		                            "/h2-console/**"
 				                ).permitAll()
 						.requestMatchers(HttpMethod.POST, "/user").permitAll()
 						.requestMatchers("/webhooks/pluggy").permitAll()
 						.requestMatchers("/user/**").hasRole("ADMIN")
 						
-						.anyRequest().permitAll()
+						.anyRequest().authenticated()
 
 				).userDetailsService(userDetailsService)
 
