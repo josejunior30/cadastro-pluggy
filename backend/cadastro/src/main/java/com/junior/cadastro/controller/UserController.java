@@ -3,6 +3,7 @@ package com.junior.cadastro.controller;
 
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 @RestController
 @RequestMapping(value = "/user")
 @Tag(name = "Usuários", description = "Endpoints de gerenciamento de usuários")
@@ -71,7 +73,7 @@ public class UserController {
 	        description = "Usuário criado com sucesso",
 	        content = @Content(schema = @Schema(implementation = UserDTO.class))
 	    )
-	public ResponseEntity<UserDTO> insert(@RequestBody UserInsertDTO dto){
+	 public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto){
 		UserDTO newDto=  service.insert(dto);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(newDto.getId()).toUri();
@@ -94,7 +96,7 @@ public class UserController {
         content = @Content(schema = @Schema(implementation = UserDTO.class))
     )
    
-	public ResponseEntity<UserDTO>update (@PathVariable Long id, @RequestBody UserDTO dto){
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto){
 		 dto =service.update(id, dto);
 		return ResponseEntity.ok().body(dto);
 	}

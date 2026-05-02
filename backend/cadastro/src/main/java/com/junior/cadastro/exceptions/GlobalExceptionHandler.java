@@ -4,11 +4,14 @@ import java.time.Instant;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -16,7 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiError> badCredentials(BadCredentialsException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> badCredentials(
+            BadCredentialsException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         ApiError error = new ApiError(
@@ -31,7 +37,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> authentication(AuthenticationException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> authentication(
+            AuthenticationException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         ApiError error = new ApiError(
@@ -46,7 +55,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> accessDenied(AccessDeniedException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> accessDenied(
+            AccessDeniedException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.FORBIDDEN;
 
         ApiError error = new ApiError(
@@ -60,23 +72,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiError> runtime(RuntimeException e, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                "Erro na requisição",
-                e.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(status).body(error);
-    }
-    
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> resourceNotFound(
+            ResourceNotFoundException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.NOT_FOUND;
 
         ApiError error = new ApiError(
@@ -91,7 +91,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiError> emailAlreadyExists(EmailAlreadyExistsException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> emailAlreadyExists(
+            EmailAlreadyExistsException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.CONFLICT;
 
         ApiError error = new ApiError(
@@ -106,7 +109,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<ApiError> database(DatabaseException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> database(
+            DatabaseException e,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         ApiError error = new ApiError(
@@ -119,7 +125,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status).body(error);
     }
-    
+
     @ExceptionHandler(PluggyIntegrationException.class)
     public ResponseEntity<ApiError> pluggyIntegration(
             PluggyIntegrationException e,
@@ -132,6 +138,85 @@ public class GlobalExceptionHandler {
                 status.value(),
                 "Erro na integração com a Pluggy",
                 e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> validation(
+            MethodArgumentNotValidException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Erro de validação");
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Erro de validação",
+                message,
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> malformedJson(
+            HttpMessageNotReadableException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "JSON inválido",
+                "O corpo da requisição está inválido ou malformado.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> typeMismatch(
+            MethodArgumentTypeMismatchException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Parâmetro inválido",
+                "O parâmetro '" + e.getName() + "' possui valor inválido.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> unexpected(
+            Exception e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        ApiError error = new ApiError(
+                Instant.now(),
+                status.value(),
+                "Erro interno",
+                "Ocorreu um erro inesperado no servidor.",
                 request.getRequestURI()
         );
 

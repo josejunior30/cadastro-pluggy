@@ -42,6 +42,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserDTO> findAll() {
         List<User> list = repository.findAll();
+
         return list.stream()
                 .map(UserDTO::new)
                 .collect(Collectors.toList());
@@ -61,14 +62,20 @@ public class UserService {
             throw new EmailAlreadyExistsException("Já existe um usuário cadastrado com este email.");
         }
 
-        User entity = new User();
-        copyDtoToEntity(dto, entity);
+        try {
+            User entity = new User();
 
-        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+            copyDtoToEntity(dto, entity);
 
-        entity = repository.save(entity);
+            entity.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        return new UserDTO(entity);
+            entity = repository.save(entity);
+
+            return new UserDTO(entity);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException("Já existe um usuário cadastrado com este email.");
+        }
     }
 
     @Transactional
@@ -88,6 +95,9 @@ public class UserService {
 
         } catch (EntityNotFoundException | JpaObjectRetrievalFailureException e) {
             throw new ResourceNotFoundException("Usuário não encontrado. Id: " + id);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException("Já existe outro usuário cadastrado com este email.");
         }
     }
 
@@ -99,8 +109,11 @@ public class UserService {
 
         try {
             repository.deleteById(id);
+
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Não é possível deletar este usuário porque ele está relacionado a outros registros.");
+            throw new DatabaseException(
+                    "Não é possível deletar este usuário porque ele está relacionado a outros registros."
+            );
         }
     }
 
@@ -111,9 +124,19 @@ public class UserService {
 
         entity.getRoles().clear();
 
+        if (dto.getRoles() == null) {
+            throw new DatabaseException("Lista de perfis não pode ser nula.");
+        }
+
         for (RoleDTO roleDto : dto.getRoles()) {
+            if (roleDto == null || roleDto.getId() == null) {
+                throw new ResourceNotFoundException("Role inválida ou sem id.");
+            }
+
             Role role = roleRepository.findById(roleDto.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role não encontrada. Id: " + roleDto.getId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Role não encontrada. Id: " + roleDto.getId()
+                    ));
 
             entity.getRoles().add(role);
         }

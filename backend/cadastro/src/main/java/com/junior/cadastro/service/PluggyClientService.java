@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +18,6 @@ import com.junior.cadastro.exceptions.PluggyIntegrationException;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-
 @Service
 public class PluggyClientService {
 
@@ -60,13 +61,18 @@ public class PluggyClientService {
             Map<String, Object> body = Map.of("options", options);
 
             log.info("Criando connect token da Pluggy para clientUserId={}", clientUserId);
-            
+
             JsonNode response = restClient.post()
                     .uri("/connect_token")
                     .header("X-API-KEY", apiKey)
                     .body(body)
                     .retrieve()
                     .body(JsonNode.class);
+
+            if (response == null) {
+                log.warn("Pluggy retornou body vazio ao criar connect token. clientUserId={}", clientUserId);
+                throw new PluggyIntegrationException("Pluggy retornou resposta vazia ao criar connect token.");
+            }
 
             String accessToken = response.path("accessToken").asText(null);
 
@@ -87,6 +93,16 @@ public class PluggyClientService {
             );
 
             throw new PluggyIntegrationException("Erro ao criar connect token na Pluggy.", e);
+
+        } catch (ResourceAccessException e) {
+            log.error("Timeout ou falha de conexão ao criar connect token na Pluggy.", e);
+
+            throw new PluggyIntegrationException("Pluggy indisponível ou sem resposta ao criar token de conexão.", e);
+
+        } catch (RestClientException e) {
+            log.error("Erro inesperado no client HTTP ao criar connect token na Pluggy.", e);
+
+            throw new PluggyIntegrationException("Erro inesperado na comunicação com a Pluggy.", e);
         }
     }
 
@@ -105,6 +121,11 @@ public class PluggyClientService {
                     .retrieve()
                     .body(JsonNode.class);
 
+            if (response == null) {
+                log.warn("Pluggy retornou body vazio ao buscar contas. itemId={}", itemId);
+                throw new PluggyIntegrationException("Pluggy retornou resposta vazia ao buscar contas.");
+            }
+
             log.info("Contas recebidas da Pluggy para itemId={}", itemId);
 
             return response;
@@ -118,6 +139,16 @@ public class PluggyClientService {
             );
 
             throw new PluggyIntegrationException("Erro ao buscar contas na Pluggy.", e);
+
+        } catch (ResourceAccessException e) {
+            log.error("Timeout ou falha de conexão ao buscar contas na Pluggy. itemId={}", itemId, e);
+
+            throw new PluggyIntegrationException("Pluggy indisponível ou sem resposta ao buscar contas.", e);
+
+        } catch (RestClientException e) {
+            log.error("Erro inesperado no client HTTP ao buscar contas na Pluggy. itemId={}", itemId, e);
+
+            throw new PluggyIntegrationException("Erro inesperado na comunicação com a Pluggy.", e);
         }
     }
 
@@ -138,6 +169,16 @@ public class PluggyClientService {
                     .retrieve()
                     .body(JsonNode.class);
 
+            if (response == null) {
+                log.warn(
+                        "Pluggy retornou body vazio ao buscar transações. accountId={} page={}",
+                        accountId,
+                        page
+                );
+
+                throw new PluggyIntegrationException("Pluggy retornou resposta vazia ao buscar transações.");
+            }
+
             log.info("Transações recebidas da Pluggy para accountId={} page={}", accountId, page);
 
             return response;
@@ -152,6 +193,26 @@ public class PluggyClientService {
             );
 
             throw new PluggyIntegrationException("Erro ao buscar transações na Pluggy.", e);
+
+        } catch (ResourceAccessException e) {
+            log.error(
+                    "Timeout ou falha de conexão ao buscar transações na Pluggy. accountId={} page={}",
+                    accountId,
+                    page,
+                    e
+            );
+
+            throw new PluggyIntegrationException("Pluggy indisponível ou sem resposta ao buscar transações.", e);
+
+        } catch (RestClientException e) {
+            log.error(
+                    "Erro inesperado no client HTTP ao buscar transações na Pluggy. accountId={} page={}",
+                    accountId,
+                    page,
+                    e
+            );
+
+            throw new PluggyIntegrationException("Erro inesperado na comunicação com a Pluggy.", e);
         }
     }
 
@@ -176,6 +237,11 @@ public class PluggyClientService {
                     .retrieve()
                     .body(JsonNode.class);
 
+            if (response == null) {
+                log.warn("Pluggy retornou body vazio na autenticação.");
+                throw new PluggyIntegrationException("Pluggy retornou resposta vazia na autenticação.");
+            }
+
             String apiKey = response.path("apiKey").asText(null);
 
             if (apiKey == null || apiKey.isBlank()) {
@@ -198,6 +264,16 @@ public class PluggyClientService {
             );
 
             throw new PluggyIntegrationException("Erro ao autenticar na Pluggy.", e);
+
+        } catch (ResourceAccessException e) {
+            log.error("Timeout ou falha de conexão ao autenticar na Pluggy.", e);
+
+            throw new PluggyIntegrationException("Pluggy indisponível ou sem resposta na autenticação.", e);
+
+        } catch (RestClientException e) {
+            log.error("Erro inesperado no client HTTP ao autenticar na Pluggy.", e);
+
+            throw new PluggyIntegrationException("Erro inesperado na comunicação com a Pluggy.", e);
         }
     }
 

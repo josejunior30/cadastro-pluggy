@@ -12,6 +12,7 @@ import com.junior.cadastro.entities.PluggyAccount;
 import com.junior.cadastro.entities.PluggyItem;
 import com.junior.cadastro.entities.User;
 import com.junior.cadastro.entities.enuns.PluggySyncStatus;
+import com.junior.cadastro.exceptions.PluggyIntegrationException;
 import com.junior.cadastro.repository.PluggyItemRepository;
 
 import jakarta.transaction.Transactional;
@@ -54,7 +55,7 @@ public class PluggySyncService {
             JsonNode accounts = accountsResponse != null ? accountsResponse.get("results") : null;
 
             if (accounts == null || !accounts.isArray()) {
-            	item.setSyncStatus(PluggySyncStatus.SUCCESS);
+                item.setSyncStatus(PluggySyncStatus.SUCCESS);
                 item.setLastSyncAt(Instant.now());
                 itemRepository.save(item);
                 return;
@@ -81,23 +82,34 @@ public class PluggySyncService {
                     totalTransactions
             );
 
-        } catch (Exception e) {
-        	item.setSyncStatus(PluggySyncStatus.ERROR);
-            item.setLastSyncError(e.getMessage());
-            item.setLastSyncAt(Instant.now());
-            itemRepository.save(item);
+        } catch (PluggyIntegrationException e) {
+            markItemAsError(item, e);
             throw e;
+
+        } catch (Exception e) {
+            markItemAsError(item, e);
+            throw new PluggyIntegrationException("Erro ao sincronizar item Pluggy.", e);
         }
     }
+
     private PluggyItem getOrCreateItemSafely(String itemId, User user) {
         return itemRepository.findByPluggyItemId(itemId)
                 .orElseGet(() -> {
                     try {
                         return itemRepository.saveAndFlush(new PluggyItem(itemId, user));
+
                     } catch (DataIntegrityViolationException e) {
                         return itemRepository.findByPluggyItemId(itemId)
                                 .orElseThrow(() -> e);
                     }
                 });
+    }
+
+    private void markItemAsError(PluggyItem item, Exception e) {
+        item.setSyncStatus(PluggySyncStatus.ERROR);
+        item.setLastSyncError(e.getMessage());
+        item.setLastSyncAt(Instant.now());
+
+        itemRepository.save(item);
     }
 }
